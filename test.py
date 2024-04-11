@@ -1,6 +1,10 @@
-from random import choice, randint 
 
-print(randint(0, 10))
-#qwe = [(i, a for i in range(6)) for a in range(3)]
-qwe = [(' ' for _ in range(2)) for _ in range(2)]
+qwe = [0, 1]
+for i in range(1, 2):
+    
+    print(i)
+    list.pop(qwe, i)
+    list.insert(qwe, i, i) 
+
+print('------------')
 print(qwe)
