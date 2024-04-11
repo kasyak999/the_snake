@@ -1,9 +1,8 @@
 from random import choice, randint
-
 import pygame
 
-# Инициализация PyGame:
-pygame.init()
+
+pygame.init()  # Инициализация PyGame:
 
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
@@ -59,7 +58,6 @@ class GameObject:
 
 class Snake(GameObject):
     """Описывает змейку и её поведение."""
-    length = 1
 
     def __init__(self, color):
         """Описывает змейку и действия с ним."""
@@ -68,24 +66,27 @@ class Snake(GameObject):
         self.direction = RIGHT
         self.next_direction = None
         self.last = None
+        self.length = 1
 
     def move(self):
         """Обновление положения змейки в игре."""
-        self.get_head_position()
-        print('-----------', self.direction)
-        #self.last = self.positions[-1]
+        golova = self.get_head_position()
         if self.direction == RIGHT:
-            print(self.get_head_position())
-            new = self.positions[0][0] + (self.direction[0 * 20])
-            y1 = self.positions[0][1]
-            list.insert(self.positions, 0, (new, y1))
+            golova[0] += self.direction[0] * 20
+        elif self.direction == LEFT:
+            golova[0] += self.direction[0] * 20
+        elif self.direction == UP:
+            golova[1] += self.direction[1] * 20
+        elif self.direction == DOWN:
+            golova[1] += self.direction[1] * 20
+            
+        list.insert(self.positions, 0, tuple(golova))
 
     def get_head_position(self):
         """текущее положение головы змейки (первый элемент в списке"""
-        # x1 = self.positions[0][0] - GRID_SIZE
-        # y1 = self.positions[0][1]
-        # list.insert(self.positions, 0, (x1, y1))
-        return self.positions[0]
+        self.last = self.positions[-1]
+        pos = list.pop(self.positions, 0)
+        return list(pos)
 
     def update_direction(self):
         """Метод обновления направления после нажатия на кнопку"""
@@ -164,12 +165,11 @@ def main():
         snake.draw()  # Отображает змейку на поле
         handle_keys(snake)  # события клавиш
         snake.move()
-        print(snake.positions)
+        snake.update_direction()
 
 
 if __name__ == '__main__':
     main()
-    pygame.quit()
 
 
 # Функция обработки действий пользователя
