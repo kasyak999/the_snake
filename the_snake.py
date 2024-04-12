@@ -17,20 +17,11 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-# Цвет фона - черный:
-BOARD_BACKGROUND_COLOR = (0, 0, 0)
-
-# Цвет границы ячейки
-BORDER_COLOR = (93, 216, 228)
-
-# Цвет яблока
-APPLE_COLOR = (255, 0, 0)
-
-# Цвет змейки
-SNAKE_COLOR = (0, 255, 0)
-
-# Скорость движения змейки:
-SPEED = 20
+BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Цвет фона - черный:
+BORDER_COLOR = (93, 216, 228)  # Цвет границы ячейки
+APPLE_COLOR = (255, 0, 0)  # Цвет яблока
+SNAKE_COLOR = (0, 255, 0)  # Цвет змейки
+SPEED = 20  # Скорость движения змейки:
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -176,6 +167,7 @@ def main():
         aple.draw()  # Отображает яблоко на поле.
         snake.draw()  # Отображает змейку на поле.
         handle_keys(snake)  # события клавиш.
+        snake.update_direction()
         snake.move()
         if snake.positions[0] in snake.positions[1:]:
             snake.reset()  # Сбрасывает игры
@@ -183,7 +175,6 @@ def main():
             list.insert(snake.positions, snake.length, aple.position)
             snake.length += 1
             aple = Apple(APPLE_COLOR)
-        snake.update_direction()
 
 
 if __name__ == '__main__':
