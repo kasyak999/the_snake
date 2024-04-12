@@ -1,10 +1,12 @@
 
-qwe = [0, 1]
-for i in range(1, 2):
-    
-    print(i)
-    list.pop(qwe, i)
-    list.insert(qwe, i, i) 
+qwe = [0, 1, 2]
+
 
 print('------------')
-print(qwe)
+print(qwe[1:])
+
+print('-------------------')
+positions = [1]
+new_head = 4
+positions = [new_head] + positions[:-1]
+print(positions)

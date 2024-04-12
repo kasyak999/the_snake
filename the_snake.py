@@ -29,7 +29,7 @@ APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
-SPEED = 15
+SPEED = 45
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -70,14 +70,7 @@ class Snake(GameObject):
 
     def move(self):
         """Обновление положения змейки в игре."""
-        golova = self.get_head_position()
-
-        if self.length > 1:
-            for i in range(1, self.length):
-                list.pop(self.positions, i)
-                i_add = i - 1
-                list.insert(self.positions, i, self.positions[i_add])
-            
+        golova = self.get_head_position() 
         if self.direction == RIGHT:
             golova[0] += self.direction[0] * 20
         elif self.direction == LEFT:
@@ -86,7 +79,6 @@ class Snake(GameObject):
             golova[1] += self.direction[1] * 20
         elif self.direction == DOWN:
             golova[1] += self.direction[1] * 20  
-
         if golova[0] >= SCREEN_WIDTH:  # если змейка идет вправо
             self.direction = RIGHT
             golova = (0, golova[1])
@@ -99,7 +91,6 @@ class Snake(GameObject):
         elif golova[1] < 0:
             self.direction = UP
             golova = (golova[0], SCREEN_HEIGHT)
-
         list.insert(self.positions, 0, tuple(golova))  # Сохроняем всЁ
 
     def reset(self):
@@ -109,6 +100,7 @@ class Snake(GameObject):
     def get_head_position(self):
         """Текущее положение головы змейки (первый элемент в списке)"""
         self.last = self.positions[-1]
+        self.positions = [self.positions[0]] + self.positions[:-1]
         pos = list.pop(self.positions, 0)
         return list(pos)
 
@@ -120,7 +112,7 @@ class Snake(GameObject):
 
     def draw(self):
         """Отрисовка на поле"""
-        for position in self.positions[:-1]:
+        for position in self.positions:  # [:-1]
             rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
             pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
@@ -139,15 +131,15 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Описывает яблоко и действия с ним."""
 
-    def __init__(self, color):
-        super().__init__(color)
-        self.position = self.randomize_position()
+    # def __init__(self, color):
+    #     super().__init__(color)
+    #     self.position = self.randomize_position()
 
     @staticmethod
     def randomize_position():
         """Устанавливает случайное положение яблока на игровом поле."""
-        rand1 = randint(0, GRID_WIDTH) * GRID_SIZE
-        rand2 = randint(0, GRID_HEIGHT) * GRID_SIZE
+        rand1 = randint(0, GRID_WIDTH - 1) * GRID_SIZE
+        rand2 = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
         return rand1, rand2
 
     def draw(self):
@@ -190,11 +182,14 @@ def main():
         handle_keys(snake)  # события клавиш.
         snake.move()
         if snake.positions[0] == aple.position:  # Если съел яблоко.
+            list.insert(snake.positions, snake.length, aple.position)
             snake.length += 1
-            list.insert(snake.positions, 0, aple.position)
             aple = Apple(APPLE_COLOR)
+        elif snake.positions[0] in snake.positions[1:]:
+            print('Врезался в хвост')
+            print(snake.positions)
         snake.update_direction()
-        print(snake.positions)
+        #print(snake.positions)
 
 
 if __name__ == '__main__':
