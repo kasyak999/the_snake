@@ -46,7 +46,7 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс."""
 
-    def __init__(self, color):
+    def __init__(self, color=BOARD_BACKGROUND_COLOR):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = color
 
@@ -57,7 +57,7 @@ class GameObject:
 class Snake(GameObject):
     """Описывает змейку и её поведение."""
 
-    def __init__(self, color):
+    def __init__(self, color=BOARD_BACKGROUND_COLOR):
         """Описывает змейку и действия с ним."""
         super().__init__(color)
         self.positions = [self.position]
@@ -69,8 +69,8 @@ class Snake(GameObject):
     def move(self):
         """Обновление положения змейки в игре."""
         golova = self.get_head_position()
-        golova[0] += self.direction[0] * 20
-        golova[1] += self.direction[1] * 20
+        golova[0] += self.direction[0] * GRID_SIZE
+        golova[1] += self.direction[1] * GRID_SIZE
         if golova[0] >= SCREEN_WIDTH:  # если змейка идет вправо
             self.direction = RIGHT
             golova = (0, golova[1])
@@ -128,7 +128,7 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Описывает яблоко и действия с ним."""
 
-    def __init__(self, color):
+    def __init__(self, color=BOARD_BACKGROUND_COLOR):
         super().__init__(color)
         self.position = self.randomize_position()
 
