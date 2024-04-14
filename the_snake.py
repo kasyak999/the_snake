@@ -2,7 +2,7 @@
 from random import choice, randint
 import pygame
 
-
+# pylint: disable=no-member
 pygame.init()  # Инициализация PyGame:
 
 # Константы для размеров поля и сетки:
