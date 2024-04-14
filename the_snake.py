@@ -21,7 +21,7 @@ BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Цвет фона - черный:
 BORDER_COLOR = (93, 216, 228)  # Цвет границы ячейки
 APPLE_COLOR = (255, 0, 0)  # Цвет яблока
 SNAKE_COLOR = (0, 255, 0)  # Цвет змейки
-SPEED = 20  # Скорость движения змейки:
+SPEED = 5  # Скорость движения змейки:
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -126,22 +126,24 @@ class Apple(GameObject):
 
 def handle_keys(game_object):
     """Функция обработки действий пользователя"""
-    # qwe = {
-    #     (DOWN, pygame.K_UP): UP,
-    # }
+    key_map = {
+        (RIGHT, pygame.K_UP): UP,
+        (RIGHT, pygame.K_DOWN): DOWN,
+        (LEFT, pygame.K_UP): UP,
+        (LEFT, pygame.K_DOWN): DOWN,
+        (UP, pygame.K_LEFT): LEFT,
+        (UP, pygame.K_RIGHT): RIGHT,
+        (DOWN, pygame.K_LEFT): LEFT,
+        (DOWN, pygame.K_RIGHT): RIGHT,
+    }
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and game_object.direction != DOWN:
-                game_object.update_direction(UP)
-            elif event.key == pygame.K_DOWN and game_object.direction != UP:
-                game_object.update_direction(DOWN)
-            elif event.key == pygame.K_LEFT and game_object.direction != RIGHT:
-                game_object.update_direction(LEFT)
-            elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
-                game_object.update_direction(RIGHT)
+            direction = key_map.get((game_object.direction, event.key))
+            if direction is not None:
+                game_object.update_direction(direction)
 
 
 def main():
