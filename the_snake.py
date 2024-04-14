@@ -21,7 +21,7 @@ BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Цвет фона - черный:
 BORDER_COLOR = (93, 216, 228)  # Цвет границы ячейки
 APPLE_COLOR = (255, 0, 0)  # Цвет яблока
 SNAKE_COLOR = (0, 255, 0)  # Цвет змейки
-SPEED = 5  # Скорость движения змейки:
+SPEED = 20  # Скорость движения змейки:
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -37,18 +37,25 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс."""
 
-    cells: list[int] = []
+    occupied_cell: list[str] = []  # Занятые ячейки.
 
     def __init__(self, color=BOARD_BACKGROUND_COLOR):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = color
+        self.cells = []
 
     def draw(self):
         """Абстрактный метод."""
 
-    def create_cell(self, value):
-        """Занятые ячейки"""
-        GameObject.cells = value
+    def create_cell(self, position, color=BORDER_COLOR):
+        """Отрисовка обектов"""
+        if color != BORDER_COLOR:
+            last_rect = pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
+            pygame.draw.rect(screen, color, last_rect)
+        else:
+            rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
+            pygame.draw.rect(screen, self.body_color, rect)
+            pygame.draw.rect(screen, color, rect, 1)
 
 
 class Snake(GameObject):
@@ -60,7 +67,7 @@ class Snake(GameObject):
         self.positions = [self.position]
         self.direction = RIGHT
         self.last = None
-        self.length = len(self.positions)
+        # self.length = len(self.positions)
 
     def move(self):
         """Обновление положения змейки в игре."""
@@ -78,6 +85,7 @@ class Snake(GameObject):
         self.positions = [self.position]
         self.direction = choice([RIGHT, LEFT, UP, DOWN])
         self.last = None
+        GameObject.occupied_cell = []
         screen.fill(BOARD_BACKGROUND_COLOR)
 
     def get_head_position(self):
@@ -90,15 +98,9 @@ class Snake(GameObject):
 
     def draw(self):
         """Отрисовка на поле"""
-        for position in self.positions:  # [:-1]
-            rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
-            pygame.draw.rect(screen, self.body_color, rect)
-            pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
-
-        # Затирание последнего сегмента
-        if self.last:
-            last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
+        self.create_cell(self.positions[0])  # Отрисовка головы змеи
+        if self.last:  # Затирание последнего сегмента
+            self.create_cell(self.last, BOARD_BACKGROUND_COLOR)
 
 
 class Apple(GameObject):
@@ -113,21 +115,20 @@ class Apple(GameObject):
         while True:  # Проверяем ячейки.
             rand1 = randint(0, GRID_WIDTH - 1) * GRID_SIZE
             rand2 = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-            if (rand1, rand2) not in self.cells:
+            if (rand1, rand2) not in self.occupied_cell:
                 break
-            else:
-                print('попала на змейку')
         return rand1, rand2
 
     def draw(self):
         """Отрисовка на поле"""
-        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, self.body_color, rect)
-        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+        self.create_cell(self.position)
 
 
 def handle_keys(game_object):
     """Функция обработки действий пользователя"""
+    # qwe = {
+    #     (DOWN, pygame.K_UP): UP,
+    # }
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -159,10 +160,8 @@ def main():
         if snake.get_head_position() in snake.positions[1:]:
             snake.reset()  # Сбрасывает игры
         elif snake.get_head_position() == aple.position:  # Съел яблоко.
-            list.insert(snake.positions, snake.length, aple.position)
-            snake.length += 1
-            aple.create_cell(snake.positions)  # Занятые ячеки
-            # print(aple.cells)
+            list.insert(snake.positions, 0, aple.position)
+            GameObject.occupied_cell = snake.positions  # Занятые ячеки
             aple = Apple(APPLE_COLOR)
         pygame.display.update()  # обновление поля.
 
