@@ -1,15 +1,19 @@
 """Змейка."""
-from random import choice, randint
+from random import choice
 import pygame
 
-# pylint: disable=no-member
-pygame.init()  # Инициализация PyGame:
+pygame.init()  # Инициализация PyGame: # pylint: disable=no-member
 
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
+
+ALL_CELLS = set(
+    (x * GRID_SIZE, y * GRID_SIZE)
+    for x in range(GRID_WIDTH) for y in range(GRID_HEIGHT)
+)  # Ячейки поля
 
 # Направления движения:
 UP = (0, -1)
@@ -21,7 +25,7 @@ BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Цвет фона - черный:
 BORDER_COLOR = (93, 216, 228)  # Цвет границы ячейки
 APPLE_COLOR = (255, 0, 0)  # Цвет яблока
 SNAKE_COLOR = (0, 255, 0)  # Цвет змейки
-SPEED = 5  # Скорость движения змейки:
+SPEED = 15  # Скорость движения змейки:
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -37,12 +41,9 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс."""
 
-    occupied_cell: list[str] = []  # Занятые ячейки.
-
     def __init__(self, color=BOARD_BACKGROUND_COLOR):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = color
-        self.cells = []
 
     def draw(self):
         """Абстрактный метод."""
@@ -68,6 +69,7 @@ class Snake(GameObject):
         self.direction = RIGHT
         self.last = None
         # self.length = len(self.positions)
+        self.reset()
 
     def move(self):
         """Обновление положения змейки в игре."""
@@ -85,7 +87,6 @@ class Snake(GameObject):
         self.positions = [self.position]
         self.direction = choice([RIGHT, LEFT, UP, DOWN])
         self.last = None
-        GameObject.occupied_cell = []
         screen.fill(BOARD_BACKGROUND_COLOR)
 
     def get_head_position(self):
@@ -98,7 +99,7 @@ class Snake(GameObject):
 
     def draw(self):
         """Отрисовка на поле"""
-        self.create_cell(self.positions[0])  # Отрисовка головы змеи
+        self.create_cell(self.get_head_position())  # Отрисовка головы змеи
         if self.last:  # Затирание последнего сегмента
             self.create_cell(self.last, BOARD_BACKGROUND_COLOR)
 
@@ -106,18 +107,16 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Описывает яблоко и действия с ним."""
 
-    def __init__(self, color=BOARD_BACKGROUND_COLOR):
+    def __init__(self, occupied_cell, color=BOARD_BACKGROUND_COLOR):
         super().__init__(color)
+        self.occupied_cell = occupied_cell
         self.position = self.randomize_position()
 
     def randomize_position(self):
         """Устанавливает случайное положение яблока на игровом поле."""
-        while True:  # Проверяем ячейки.
-            rand1 = randint(0, GRID_WIDTH - 1) * GRID_SIZE
-            rand2 = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-            if (rand1, rand2) not in self.occupied_cell:
-                break
-        return rand1, rand2
+        random_cell = ALL_CELLS - set(self.occupied_cell)
+        random_pos = choice(tuple(random_cell))
+        return random_pos
 
     def draw(self):
         """Отрисовка на поле"""
@@ -127,30 +126,30 @@ class Apple(GameObject):
 def handle_keys(game_object):
     """Функция обработки действий пользователя"""
     key_map = {
-        (RIGHT, pygame.K_UP): UP,
-        (RIGHT, pygame.K_DOWN): DOWN,
-        (LEFT, pygame.K_UP): UP,
-        (LEFT, pygame.K_DOWN): DOWN,
-        (UP, pygame.K_LEFT): LEFT,
-        (UP, pygame.K_RIGHT): RIGHT,
-        (DOWN, pygame.K_LEFT): LEFT,
-        (DOWN, pygame.K_RIGHT): RIGHT,
+        (RIGHT, pygame.K_UP): UP,  # pylint: disable=no-member
+        (RIGHT, pygame.K_DOWN): DOWN,  # pylint: disable=no-member
+        (LEFT, pygame.K_UP): UP,  # pylint: disable=no-member
+        (LEFT, pygame.K_DOWN): DOWN,  # pylint: disable=no-member
+        (UP, pygame.K_LEFT): LEFT,  # pylint: disable=no-member
+        (UP, pygame.K_RIGHT): RIGHT,  # pylint: disable=no-member
+        (DOWN, pygame.K_LEFT): LEFT,  # pylint: disable=no-member
+        (DOWN, pygame.K_RIGHT): RIGHT,  # pylint: disable=no-member
     }
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            raise SystemExit
-        elif event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN:  # pylint: disable=no-member
             direction = key_map.get((game_object.direction, event.key))
             if direction is not None:
                 game_object.update_direction(direction)
+        elif event.type == pygame.QUIT:  # pylint: disable=no-member
+            pygame.quit()  # pylint: disable=no-member
+            raise SystemExit
 
 
 def main():
     """Тело игры"""
     # Тут нужно создать экземпляры классов.
     snake = Snake(SNAKE_COLOR)
-    aple = Apple(APPLE_COLOR)
+    aple = Apple(snake.positions, APPLE_COLOR)
 
     while True:
         clock.tick(SPEED)
@@ -163,8 +162,8 @@ def main():
             snake.reset()  # Сбрасывает игры
         elif snake.get_head_position() == aple.position:  # Съел яблоко.
             list.insert(snake.positions, 0, aple.position)
-            GameObject.occupied_cell = snake.positions  # Занятые ячеки
-            aple = Apple(APPLE_COLOR)
+            aple.occupied_cell = snake.positions  # Занятые ячеки
+            aple.position = aple.randomize_position()
         pygame.display.update()  # обновление поля.
 
 
