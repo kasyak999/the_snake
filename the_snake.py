@@ -107,14 +107,17 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Описывает яблоко и действия с ним."""
 
-    def __init__(self, occupied_cell, color=BOARD_BACKGROUND_COLOR):
+    def __init__(self, occupied_cell=None, color=BOARD_BACKGROUND_COLOR):
         super().__init__(color)
         self.occupied_cell = occupied_cell
         self.position = self.randomize_position()
 
     def randomize_position(self):
         """Устанавливает случайное положение яблока на игровом поле."""
-        random_cell = ALL_CELLS - set(self.occupied_cell)
+        random_cell = (
+            ALL_CELLS - set(self.occupied_cell)
+            if self.occupied_cell is not None else ALL_CELLS
+        )
         random_pos = choice(tuple(random_cell))
         return random_pos
 
