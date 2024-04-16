@@ -25,7 +25,11 @@ BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Цвет фона - черный:
 BORDER_COLOR = (93, 216, 228)  # Цвет границы ячейки
 APPLE_COLOR = (255, 0, 0)  # Цвет яблока
 SNAKE_COLOR = (0, 255, 0)  # Цвет змейки
-SPEED = 15  # Скорость движения змейки:
+SPEED = 5  # Скорость движения змейки:
+
+WHITE = (255, 255, 255)
+# Создание объекта для отображения текста
+font = pygame.font.Font(None, 18)  # Загрузка шрифта размером 36
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -57,6 +61,11 @@ class GameObject:
             rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
             pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, color, rect, 1)
+        
+        # Затирание клеток под счетом игры
+        wer = (3 * 20, 0 * 20)
+        qwe = pygame.Rect(wer, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, color, qwe)
 
 
 class Snake(GameObject):
@@ -68,7 +77,7 @@ class Snake(GameObject):
         self.positions = [self.position]
         self.direction = RIGHT
         self.last = None
-        # self.length = len(self.positions)
+        self.apple_quantity = 0
         self.reset()
 
     def move(self):
@@ -167,6 +176,20 @@ def main():
             list.insert(snake.positions, 0, aple.position)
             aple.occupied_cell = snake.positions  # Занятые ячеки
             aple.position = aple.randomize_position()
+            snake.apple_quantity += 1
+            text_surface = font.render(
+                f'Счет игры: {snake.apple_quantity}', True, WHITE
+            )  # Создание текстовой поверхности
+
+            # Получение прямоугольника, описывающего текстовую поверхность
+            text_rect = text_surface.get_rect()
+            # Установка положения текста
+            text_rect.topleft = (0 * GRID_SIZE, 0 * GRID_SIZE)
+            # text_width, text_height = text_rect.width, text_rect.height
+            print(text_rect.width / GRID_SIZE)
+            # Отрисовка текста на экран
+            screen.blit(text_surface, text_rect)
+
         pygame.display.update()  # обновление поля.
 
 
