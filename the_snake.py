@@ -20,7 +20,7 @@ UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
-#
+
 BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Цвет фона - черный:
 BORDER_COLOR = (93, 216, 228)  # Цвет границы ячейки
 APPLE_COLOR = (255, 0, 0)  # Цвет яблока
