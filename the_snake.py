@@ -27,9 +27,9 @@ APPLE_COLOR = (255, 0, 0)  # Цвет яблока
 SNAKE_COLOR = (0, 255, 0)  # Цвет змейки
 SPEED = 5  # Скорость движения змейки:
 
-WHITE = (255, 255, 255)
+WHITE = (255, 255, 255)  # Цвет текста
 # Создание объекта для отображения текста
-font = pygame.font.Font(None, 18)  # Загрузка шрифта размером 36
+font = pygame.font.Font(None, 25)  # Загрузка шрифта размером 36
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -61,11 +61,6 @@ class GameObject:
             rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
             pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, color, rect, 1)
-        
-        # Затирание клеток под счетом игры
-        wer = (3 * 20, 0 * 20)
-        qwe = pygame.Rect(wer, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, color, qwe)
 
 
 class Snake(GameObject):
@@ -157,6 +152,25 @@ def handle_keys(game_object):
             raise SystemExit
 
 
+def game_info(value_snake, value_aple):
+    """Счет игры"""
+    text_surface = font.render(
+        f'Счет игры: {value_snake.apple_quantity}', True, WHITE
+    )  # Создание текстовой поверхности
+    # Получение прямоугольника, описывающего текстовую поверхность
+    text_rect = text_surface.get_rect()
+    # Установка положения текста
+    text_rect.topleft = (0 * GRID_SIZE, 0 * GRID_SIZE)
+    # text_width, text_height = text_rect.width, text_rect.height
+    # Затирание клеток под счетом игры
+    qwe = round(text_rect.width / 20)
+    for i in range(qwe + 1):
+        list.append(value_aple.occupied_cell, (i * GRID_SIZE, 0))
+        result = pygame.Rect((i * GRID_SIZE, 0), (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, result)
+    screen.blit(text_surface, text_rect)  # Отрисовка текста
+
+
 def main():
     """Тело игры"""
     # Тут нужно создать экземпляры классов.
@@ -174,22 +188,10 @@ def main():
             snake.reset()  # Сбрасывает игры
         elif snake.get_head_position() == aple.position:  # Съел яблоко.
             list.insert(snake.positions, 0, aple.position)
-            aple.occupied_cell = snake.positions  # Занятые ячеки
-            aple.position = aple.randomize_position()
             snake.apple_quantity += 1
-            text_surface = font.render(
-                f'Счет игры: {snake.apple_quantity}', True, WHITE
-            )  # Создание текстовой поверхности
-
-            # Получение прямоугольника, описывающего текстовую поверхность
-            text_rect = text_surface.get_rect()
-            # Установка положения текста
-            text_rect.topleft = (0 * GRID_SIZE, 0 * GRID_SIZE)
-            # text_width, text_height = text_rect.width, text_rect.height
-            print(text_rect.width / GRID_SIZE)
-            # Отрисовка текста на экран
-            screen.blit(text_surface, text_rect)
-
+            aple.occupied_cell = list.copy(snake.positions)  # Занятые ячеки
+            game_info(snake, aple)
+            aple.position = aple.randomize_position()
         pygame.display.update()  # обновление поля.
 
 
