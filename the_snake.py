@@ -3,7 +3,7 @@ from random import choice
 import pygame
 
 pygame.init()  # Инициализация PyGame: # pylint: disable=no-member
-12
+
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 GRID_SIZE = 20
